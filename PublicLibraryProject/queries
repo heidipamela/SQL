@@ -1,0 +1,232 @@
+show databases;
+Use Library;
+CREATE TABLE Book(ISBN INT PRIMARY KEY, Title VARCHAR(100), Genre VARCHAR(30), PublisherYear INT, Language VARCHAR(30));
+CREATE TABLE Users(UserID INT PRIMARY KEY, FirstName VARCHAR(50), LastName VARCHAR(50), ZipCode INT, EmailAddress VARCHAR(100), PhoneNumber INT);
+CREATE TABLE Authors(AuthorID INT primary key, FirstName VARCHAR(50), LastName VARCHAR(50));
+CREATE TABLE Loan(LoanID INT PRIMARY KEY, Date date, UserID INT, BookID INT);
+CREATE TABLE Library(AddressID VARCHAR(30) primary key, ZipCode INT );
+Use Library;
+CREATE TABLE BooksLibrary(ISBN INT, ADDRESSID INT primary key );
+CREATE TABLE BooksAuthor (ISBN INT, AuthorID int primary key );
+
+show tables;
+
+Insert into Book (ISBN, Title, Genre, PublisherYear, Language)
+VALUES
+(12345, 'The Giver', 'Fiction', 2010, 'English'),
+(12245, 'To kill a Mockingbird','Fiction', 1998, 'English'),
+(12099, 'Where the Crawdads Sing','Fiction', 2011, 'English'),
+(12234, 'Happier days', 'Non-Fiction',2018,'English'),
+(14522, 'El Hoy', 'Biography',2011, 'Spanish'),
+(19089, 'Ghosting', 'Mystery', 2008, 'English'),
+(12334, 'Size 12 is not fat', 'Comedy',2001, 'English'),
+(14557, 'Pride and Prejudice','Medieval', 1990, 'English'),
+(12367, 'Singing', 'Educational',2015, 'English'),
+(13277, 'Always and forever', 'Romance', 2023, 'English');
+
+Alter table Users MODIFY column PhoneNumber Varchar(10);
+
+Insert into Users (UserID, FirstName, LastName,ZipCode, EmailAddress, PhoneNumber )
+VALUES
+    (11111,'Heidi', 'Ojeda', 12440, 'Heidii@outlook.com', 4912304567),
+(11092, 'Maria', 'Perez', 12334, 'maria@outlook.com', 4912343210),
+(12309, 'Lola', 'Ureña', 13288, 'lolita@gmail.com', 4912034568),
+(13456, 'Paola', 'Reyes', 12456, 'paola@outlook.com', 4912035692),
+(10989, 'Juan', 'Polanco', 19024, 'juan@gmail,com', 4915402132),
+(10987, 'Pamela', 'Irel', 12490, 'pame@outlook.com', 4912032903),
+(19034, 'Paula', 'Oleada', 12332, 'pau@gmail.com', 4915678932),
+(13856, 'Fernanda', 'Jose', 12309, 'fer@outlook.com', 491567890),
+(14598, 'Carlos', 'Inoa', 12983, 'car@outlook.com', 4912032111),
+(13211, 'Ana', 'Portes', 12098, 'ana@outlook.com', 4915203984);
+
+
+Insert into Authors( AuthorID, FirstName, LastName)
+VALUES
+    (0009, 'Laura','Queen'),
+(0098, 'Oliver', 'Pau'),
+(0097, 'Yoka', 'Bastu'),
+(0096, 'Paulo', 'Ventura'),
+(0095, 'Well', 'Albert'),
+(0094, 'Karl', 'Langerfield'),
+(0093, 'Frank', 'Forrest'),
+(0092, 'Alia', 'Montes'),
+(0091, 'Joe', 'Muller'),
+(0090, 'Kia', 'Beras');
+
+
+Insert into Library (AddressID, ZipCode)
+VALUES ('Unter Den Liden', 10982),
+       ('Friedstrasse', 12091);
+
+INSERT INTO Loan (LoanID, Date, UserID, BookID) VALUES
+                                                  (92210, '2024-02-02', 11092, 12345),
+                                                  (90123, '2024-01-01', 11092, 14557),
+                                                  (90091, '2024-03-02', 13211, 13277),
+                                                  (90899, '2023-12-24', 13456, 12367),
+                                                  (90124, '2024-06-02', 19034, 19089),
+                                                  (90231, '2024-05-05', 10987, 12234),
+                                                  (98219, '2024-04-04', 13456, 12099),
+                                                  (98756, '2024-04-09', 13456, 14522),
+                                                  (91200, '2024-02-02', 12309, 12245),
+                                                  (92211, '2024-01-02', 10989, 12334);
+
+
+Insert into BooksAuthor( ISBN, AuthorID )
+VALUES
+    (12345,0009 ),
+    (14557, 0098),
+    (13277,0097),
+    (12367,0096 ),
+    (19089,0095),
+    (12234,0094),
+    (12099,0093),
+    (14522,0092),
+    (12245,0091),
+    (12334,0090);
+
+
+-- The queries that are altering the table of BooksLibrary, are modifying some errors I had encountered in this table. 
+Such as the column AddressID, which values were expected to be inserted as Integers, is now changed to Varchar and a space of 30 characters.
+
+Alter table BooksLibrary MODIFY column AddressID VARCHAR(30);
+ALTER TABLE BooksLibrary DROP PRIMARY KEY;
+ALTER TABLE BooksLibrary ADD PRIMARY KEY (ISBN, AddressID);
+
+
+Insert into BooksLibrary (ISBN, ADDRESSID) VALUES
+                                               (12345,'Unter Den Liden'),
+                                               (14557, 'Friedstrasse'),
+                                               (13277, 'Friedstrasse'),
+                                               (12367, 'Unter Den Liden'),
+                                               (19089, 'Unter Den Liden'),
+                                               (12234, 'Unter Den Liden'),
+                                               (12099, 'Unter Den Liden'),
+                                               (14522, 'Friedstrasse'),
+                                               (12245, 'Friedstrasse'),
+                                               (12334, 'Friedstrasse');
+
+
+show tables;
+
+-- Foreign keys are created for the Loan Table, as these were not created before, and are strictly necessary to ensure the relationship between the tables.
+
+--  foreign keys to the Loan table
+ALTER TABLE Loan
+    ADD CONSTRAINT fk_user
+        FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    ADD CONSTRAINT fk_book
+        FOREIGN KEY (BookID) REFERENCES Book(ISBN);
+
+--  foreign keys to the BooksLibrary table
+ALTER TABLE BooksLibrary
+    ADD CONSTRAINT fk_bookslibrary_book
+        FOREIGN KEY (ISBN) REFERENCES Book(ISBN),
+    ADD CONSTRAINT fk_bookslibrary_library
+        FOREIGN KEY (AddressID) REFERENCES Library(AddressID);
+
+--  foreign keys to the BooksAuthor table
+ALTER TABLE BooksAuthor
+    ADD CONSTRAINT fk_booksauthor_book
+        FOREIGN KEY (ISBN) REFERENCES Book(ISBN),
+    ADD CONSTRAINT fk_booksauthor_author
+        FOREIGN KEY (AuthorID) REFERENCES Authors(AuthorID);
+
+-- Checking the structure of the Loan table
+SHOW CREATE TABLE Loan;
+
+-- Join Users and Loan tables
+SELECT u.FirstName, u.LastName, l.Date, l.BookID
+FROM Users u
+         JOIN Loan l ON u.UserID = l.UserID;
+
+-- Joininig Book and Loan tables
+SELECT b.Title, l.Date, l.UserID
+FROM Book b
+         JOIN Loan l ON b.ISBN = l.BookID;
+
+-- Joining BooksLibrary and Book tables
+SELECT bl.AddressID, b.Title
+FROM BooksLibrary bl
+         JOIN Book b ON bl.ISBN = b.ISBN;
+
+-- Joining BooksAuthor and Authors tables
+SELECT ba.ISBN, a.FirstName, a.LastName
+FROM BooksAuthor ba
+         JOIN Authors a ON ba.AuthorID = a.AuthorID;
+
+
+-- User retrieval info
+select * from Users;
+select * from Users where PhoneNumber = 4912032903;
+
+-- Selecting the loans done during the year 2024
+select * from Loan where year(Date)  = 2024
+
+SELECT COUNT(*) AS TotalLoans2024
+FROM Loan
+WHERE YEAR(Date) = 2024;
+
+
+-- Selecting the users that have more than 1 loan
+SELECT u.UserID, u.FirstName, u.LastName
+FROM Users u
+WHERE (
+          SELECT COUNT(*)
+          FROM Loan l
+          WHERE l.UserID = u.UserID
+      ) > 1;
+
+-- Count how many books are in each library location
+SELECT l.AddressID, COUNT(bl.ISBN) AS TotalBooks
+FROM Library l
+         LEFT JOIN BooksLibrary bl ON l.AddressID = bl.ADDRESSID
+GROUP BY l.AddressID;
+
+-- ACCOUNT MANAGEMENT
+-- UPDATING AN EMAIL
+
+update Users
+set EmailAddress = 'paupau@gmail.com'
+where UserID = 13456;
+
+-- All Loans with User and Book Information
+SELECT l.LoanID, l.Date, u.FirstName, u.LastName, b.Title
+FROM Loan l
+         JOIN Users u ON l.UserID = u.UserID
+         JOIN Book b ON l.BookID = b.ISBN;
+
+-- Users Who Borrowed Books from a Specific Genre
+SELECT DISTINCT u.UserID, u.FirstName, u.LastName
+FROM Users u
+         JOIN Loan l ON u.UserID = l.UserID
+         JOIN Book b ON l.BookID = b.ISBN
+WHERE b.Genre = 'Fiction';
+
+-- Books not borrowed
+SELECT b.Title
+FROM Book b
+WHERE b.ISBN NOT IN (
+    SELECT l.BookID
+    FROM Loan l
+    WHERE l.Date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+);
+-- total loans by genre
+SELECT b.Genre, COUNT(l.LoanID) AS TotalLoans
+FROM Loan l
+         JOIN Book b ON l.BookID = b.ISBN
+GROUP BY b.Genre;
+
+SELECT b.Title, a.FirstName, a.LastName, l.AddressID
+FROM BooksLibrary bl
+         JOIN Book b ON bl.ISBN = b.ISBN
+         JOIN BooksAuthor ba ON b.ISBN = ba.ISBN
+         JOIN Authors a ON ba.AuthorID = a.AuthorID
+         JOIN Library l ON bl.AddressID = l.AddressID
+WHERE l.AddressID = 'Unter Den Liden';
+
+-- books by authors info retrieval
+
+SELECT a.FirstName, a.LastName, b.Title
+FROM Authors a
+         JOIN BooksAuthor ba ON a.AuthorID = ba.AuthorID
+         JOIN Book b ON ba.ISBN = b.ISBN;
